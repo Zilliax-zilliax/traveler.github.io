@@ -1,4 +1,6 @@
 document.addEventListener("DOMContentLoaded", function () {
+  console.log("DOM 加载完成，开始初始化角色展示");
+
   // 角色数据
   const characters = [
     {
@@ -54,27 +56,50 @@ document.addEventListener("DOMContentLoaded", function () {
   // 获取DOM元素
   const container = document.getElementById("character-container");
   if (!container) {
-    console.error("找不到角色容器元素");
+    console.error("找不到角色容器元素 #character-container");
     return;
   }
+  console.log("找到角色容器元素");
 
   const images = container.getElementsByTagName("img");
+  console.log(`找到 ${images.length} 个角色图片`);
+
   const indicators = container.querySelectorAll(".indicator");
+  console.log(`找到 ${indicators.length} 个指示器`);
+
   const prevBtn = document.getElementById("charPrevBtn");
   const nextBtn = document.getElementById("charNextBtn");
   const charName = document.getElementById("char-name");
   const charDescription = document.getElementById("char-description");
 
   // 检查必要的元素是否存在
-  if (
-    !images.length ||
-    !indicators.length ||
-    !prevBtn ||
-    !nextBtn ||
-    !charName ||
-    !charDescription
-  ) {
-    console.error("缺少必要的DOM元素");
+  if (!images.length) {
+    console.error("没有找到角色图片");
+    return;
+  }
+
+  if (!indicators.length) {
+    console.error("没有找到指示器");
+    return;
+  }
+
+  if (!prevBtn) {
+    console.error("没有找到上一个按钮");
+    return;
+  }
+
+  if (!nextBtn) {
+    console.error("没有找到下一个按钮");
+    return;
+  }
+
+  if (!charName) {
+    console.error("没有找到角色名称元素");
+    return;
+  }
+
+  if (!charDescription) {
+    console.error("没有找到角色描述元素");
     return;
   }
 
@@ -84,21 +109,59 @@ document.addEventListener("DOMContentLoaded", function () {
   // 初始化显示
   function initializeSlider() {
     console.log("初始化角色轮播");
+
+    // 确保所有图片都有正确的类
+    for (let i = 0; i < images.length; i++) {
+      if (i === 0) {
+        images[i].classList.add("active");
+      } else {
+        images[i].classList.remove("active");
+      }
+    }
+
+    // 确保所有指示器都有正确的类
+    for (let i = 0; i < indicators.length; i++) {
+      if (i === 0) {
+        indicators[i].classList.add("active");
+      } else {
+        indicators[i].classList.remove("active");
+      }
+    }
+
     // 显示第一个角色
     showCharacter(0);
-    startAutoSlide();
 
     // 添加事件监听器
-    prevBtn.addEventListener("click", showPrev);
-    nextBtn.addEventListener("click", showNext);
+    prevBtn.addEventListener("click", function () {
+      console.log("点击上一个按钮");
+      showPrev();
+    });
+
+    nextBtn.addEventListener("click", function () {
+      console.log("点击下一个按钮");
+      showNext();
+    });
+
+    // 为指示器添加点击事件
+    for (let i = 0; i < indicators.length; i++) {
+      indicators[i].addEventListener("click", function () {
+        console.log(`点击指示器 ${i}`);
+        showCharacter(i);
+      });
+    }
 
     // 鼠标悬停时停止自动播放
     container.addEventListener("mouseenter", stopAutoSlide);
     container.addEventListener("mouseleave", startAutoSlide);
+
+    // 开始自动播放
+    startAutoSlide();
   }
 
   // 切换到指定角色
   function showCharacter(index) {
+    console.log(`切换到角色 ${index}: ${characters[index].name}`);
+
     if (index < 0 || index >= characters.length) {
       console.error("无效的角色索引:", index);
       return;
@@ -108,6 +171,7 @@ document.addEventListener("DOMContentLoaded", function () {
     for (let i = 0; i < images.length; i++) {
       if (i === index) {
         images[i].classList.add("active");
+        console.log(`激活图片 ${i}`);
       } else {
         images[i].classList.remove("active");
       }
@@ -146,12 +210,14 @@ document.addEventListener("DOMContentLoaded", function () {
   // 开始自动播放
   function startAutoSlide() {
     if (intervalId) return;
+    console.log("开始自动播放");
     intervalId = setInterval(showNext, 5000);
   }
 
   // 停止自动播放
   function stopAutoSlide() {
     if (intervalId) {
+      console.log("停止自动播放");
       clearInterval(intervalId);
       intervalId = null;
     }
@@ -159,4 +225,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // 初始化轮播
   initializeSlider();
+
+  // 添加图片加载错误处理
+  for (let i = 0; i < images.length; i++) {
+    images[i].addEventListener("error", function () {
+      console.error(`图片加载失败: ${this.src}`);
+    });
+  }
 });
